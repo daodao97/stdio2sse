@@ -1,0 +1,40 @@
+name: Build and Push Docker Images
+
+on:
+    push:
+      tags: ["v*"]
+    pull_request:
+    workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  PROJECT: stdio2sse
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+            registry: ${{ env.REGISTRY }}
+            username: ${{ github.actor }}
+            password: ${{ secrets.MY_GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Extract tag version
+        id: extract_tag
+        run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Build and Push claude Docker Image
+        run: |
+            docker build --build-arg BUILD_VERSION=${{ env.TAG }} -t ghcr.io/${{ github.repository_owner }}/${{ env.PROJECT }}:${{ env.TAG }} -f Dockerfile ${env.PROJECT}
+            docker push ghcr.io/${{ github.repository_owner }}/${{ env.PROJECT }}:${{ env.TAG }}
+            docker tag ghcr.io/${{ github.repository_owner }}/${{ env.PROJECT }}:${{ env.TAG }} ghcr.io/${{ github.repository_owner }}/${{ env.PROJECT }}:latest
+            docker push ghcr.io/${{ github.repository_owner }}/${{ env.PROJECT }}:latest
