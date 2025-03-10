@@ -9,12 +9,12 @@ COPY go.sum .
 RUN go mod download
 
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-X main.Version=${BUILD_VERSION}" -o app .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-X main.Version=${BUILD_VERSION}" -o stdio2sse .
 
 FROM alpine:latest AS final
 
 WORKDIR /app
-COPY --from=builder /build/app /app/
+COPY --from=builder /build/stdio2sse /app/
 
 RUN apk update && \
     apk add --no-cache sudo tzdata
@@ -25,4 +25,4 @@ ENV TZ=Asia/Shanghai
 # 创建软链接，指向你想要的时区文件
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-ENTRYPOINT ["/app/app"]
+ENTRYPOINT ["/app/stdio2sse"]
