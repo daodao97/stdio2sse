@@ -34,7 +34,7 @@ jobs:
 
       - name: Build and Push claude Docker Image
         run: |
-            docker build --build-arg BUILD_VERSION=${{ env.TAG }} -t ghcr.io/${{ github.repository_owner }}/${{ env.PROJECT }}:${{ env.TAG }} -f Dockerfile ${env.PROJECT}
+            docker build --build-arg BUILD_VERSION=${{ env.TAG }} -t ghcr.io/${{ github.repository_owner }}/${{ env.PROJECT }}:${{ env.TAG }} -f Dockerfile ${{ env.PROJECT }}
             docker push ghcr.io/${{ github.repository_owner }}/${{ env.PROJECT }}:${{ env.TAG }}
             docker tag ghcr.io/${{ github.repository_owner }}/${{ env.PROJECT }}:${{ env.TAG }} ghcr.io/${{ github.repository_owner }}/${{ env.PROJECT }}:latest
             docker push ghcr.io/${{ github.repository_owner }}/${{ env.PROJECT }}:latest
